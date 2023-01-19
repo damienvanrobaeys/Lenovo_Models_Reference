@@ -9,9 +9,12 @@ If($CSV)
 	}
 
 $URL = "https://download.lenovo.com/bsco/schemas/list.conf.txt"
-$OutFile = "$env:temp\Models_List.txt"
-Invoke-WebRequest -Uri $URL -OutFile $OutFile 
-$Get_Models = Get-Content $OutFile 
+# $OutFile = "$env:temp\Models_List.txt"
+# Invoke-WebRequest -Uri $URL -OutFile $OutFile 
+# $Get_Models = Get-Content $OutFile 
+
+$Get_Web_Content = Invoke-RestMethod -Uri $URL -Method GET
+$Get_Models = $Get_Web_Content -split "`r`n"
 $Models_Array = @()
 ForEach($Model in $Get_Models | where-object { $_ -like "*(*"})
 	{
