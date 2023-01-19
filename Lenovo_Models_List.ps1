@@ -3,11 +3,6 @@ param(
 [switch]$Grid
 )	
 
-If($CSV)
-	{
-		$Result_file = "$env:temp\MTM_to_FriendlyName.csv"	
-	}
-
 $URL = "https://download.lenovo.com/bsco/schemas/list.conf.txt"
 # $OutFile = "$env:temp\Models_List.txt"
 # Invoke-WebRequest -Uri $URL -OutFile $OutFile 
@@ -28,6 +23,7 @@ ForEach($Model in $Get_Models | where-object { $_ -like "*(*"})
 
 If($CSV)
 	{
+		$Result_file = "$env:temp\MTM_to_FriendlyName.csv"		
 		$Models_Array | Export-CSV $Result_file -Delimiter ";" -NoTypeInformation
 	}	
 If($Grid)
