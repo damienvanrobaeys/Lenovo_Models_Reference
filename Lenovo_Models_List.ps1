@@ -3,30 +3,29 @@ param(
 [switch]$Grid
 )	
 
-$URL = "https://download.lenovo.com/bsco/schemas/list.conf.txt"
-# $OutFile = "$env:temp\Models_List.txt"
-# Invoke-WebRequest -Uri $URL -OutFile $OutFile 
-# $Get_Models = Get-Content $OutFile 
-
+$URL = "https://download.lenovo.com/bsco/public/allModels.json"
 $Get_Web_Content = Invoke-RestMethod -Uri $URL -Method GET
-$Get_Models = $Get_Web_Content -split "`r`n"
 $Models_Array = @()
-ForEach($Model in $Get_Models | where-object { $_ -like "*(*"})
+ForEach($Model in $Get_Web_Content | where-object {($_ -notlike "*-UEFI Lenovo*") -and ($_ -notlike "*dTPM*") -and ($_ -notlike "*Asset*") -and ($_ -notlike "*fTPM*")})
 	{
-		$Get_FamilyName = ($Model.split("("))[0]
-		$Get_MTM = (($Model.split("("))[1]).replace(").ini","")
+		$Model_Value = $Model.name
+		$Model_Value = ($Model_Value.split(")"))[0]
+		$Get_FamilyName = ($Model_Value.split("("))[0]
+		$Get_MTM = (($Model_Value.split("("))[1])
+
 		$Obj = New-Object PSObject
 		Add-Member -InputObject $Obj -MemberType NoteProperty -Name "FamilyName" -Value $Get_FamilyName
-		Add-Member -InputObject $Obj -MemberType NoteProperty -Name "MTM" -Value $Get_MTM	
-		$Models_Array += $Obj			
+		Add-Member -InputObject $Obj -MemberType NoteProperty -Name "MTM" -Value $Get_MTM
+		$Models_Array += $Obj	
+		$Models = $Models_Array | sort -Property FamilyName -Unique
 	}	
 
 If($CSV)
 	{
 		$Result_file = "$env:temp\MTM_to_FriendlyName.csv"		
-		$Models_Array | Export-CSV $Result_file -Delimiter ";" -NoTypeInformation
+		$Models | Export-CSV $Result_file -Delimiter ";" -NoTypeInformation
 	}	
 If($Grid)
 	{
-		$Models_Array | Out-Gridview
+		$Models | Out-Gridview
 	}

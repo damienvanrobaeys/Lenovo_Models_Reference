@@ -2,11 +2,8 @@ param(
 $MTM
 )
 
-$URL = "https://download.lenovo.com/bsco/schemas/list.conf.txt"
-# $OutFile = "$env:temp\Models_List.txt"
-# Invoke-WebRequest -Uri $URL -OutFile $OutFile 
+$URL = "https://download.lenovo.com/bsco/public/allModels.json"
 $Get_Web_Content = Invoke-RestMethod -Uri $URL -Method GET
-$Get_Models = $Get_Web_Content -split "`r`n" #| where-object { $_ -like "*$MTM*"}
-$Current_Model = $Get_Models | where-object { $_ -like "*$MTM*"}
-$Get_FamilyName = ($Current_Model.split("("))[0]
+$Current_Model = ($Get_Web_Content | where-object {($_ -like "*$MTM*") -and ($_ -notlike "*-UEFI Lenovo*") -and ($_ -notlike "*dTPM*") -and ($_ -notlike "*Asset*") -and ($_ -notlike "*fTPM*")})[0]
+$Get_FamilyName = ($Current_Model.name.split("("))[0]
 $Get_FamilyName
